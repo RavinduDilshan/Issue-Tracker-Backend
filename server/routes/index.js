@@ -92,6 +92,7 @@ router.post('/auth',async(req,res,next)=>{
                 var resarray=result;
                 let checkuser=resarray[0].username;
                 let checkpass=resarray[0].password;
+                let role=resarray[0].userType;
 
             if(err){
                 return rejects(err);
@@ -102,7 +103,8 @@ router.post('/auth',async(req,res,next)=>{
               
                res.json({
                    message:'success',
-                   session:sess
+                   session:sess,
+                   role:role
                });
                 
             }
@@ -117,6 +119,12 @@ router.get('/homee', function(req, res) {
     res.send('working...');
    
 });
+
+router.get('/projects',async(req,res,next)=>{
+    pool.query('SELECT * FROM projects',(err,result)=>{
+        res.send(result);
+    });
+ });
 
 
 
