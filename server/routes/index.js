@@ -127,6 +127,13 @@ router.get('/projects',async(req,res,next)=>{
  });
 
 
+ router.get('/cases',async(req,res,next)=>{
+    pool.query('SELECT * FROM cases',(err,result)=>{
+        res.send(result);
+    });
+ });
+
+
 
 
 module.exports = router;
