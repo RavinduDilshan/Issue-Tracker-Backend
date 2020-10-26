@@ -7,13 +7,29 @@ const mysql = require('mysql');
 var fs =require('fs');
 const { response } = require('express');
 const { rejects } = require('assert');
+var cors = require('cors');
+const { resolveSoa } = require('dns');
+
 
 const app =express();
 
 app.use(bodyParser());
-// app.use(bodyParser.urlencoded({extended : false}));
- app.use(bodyParser.json());
- app.use(session({secret: "secret"}));
+app.use(bodyParser.json());
+app.use(session({secret: "secret"}));
+app.use(cors())
+
+app.use((req,res,next)=>{
+    res.header('Access-Control-Allow-Origin','*');
+    res.header('Access-Control-Allow-Headers','*');
+
+    if(req.method === 'OPTIONS'){
+        res.header('Access-Control-Allow-Methods','PUT,POST,PATCH,DELETE,GET');
+        return res.status(200).json({});
+
+    }
+
+});
+
 
 const pool=mysql.createPool({
     connectionLimit:100,
@@ -45,7 +61,9 @@ router.get('/yo',async(req,res,next)=>{
    });
 });
 
-var sess;
+var sess; //session variable to track username
+
+//login function
 router.post('/auth',async(req,res,next)=>{
   
     //res.end(JSON.stringify(req.body));
@@ -72,60 +90,17 @@ router.post('/auth',async(req,res,next)=>{
                });
                 
             }
-
-
-            
-
         });
 
 	
 
 });
 
-// router.get('/:id', async (req,res,next)=>{
-//     try{
-//         let results = await db.one(req.params.id);
-//         res.json(results);
-//     }
-//     catch(e){
-//         console.log(e);
-//         res.sendStatus(500);
-//     }
-// });
-
 router.get('/homee', function(req, res) {
 
     res.send('working...');
    
-	// if (req.session.loggedin) {
-	// 	res.send('Welcome back, ' + req.session.username + '!');
-	// } else {
-	// 	res.send('Please login to view this page!');
-	// }
-	// res.end();
 });
-
-// router.post('/auth', function(request, response) {
-// 	var username = request.body.username;
-// 	var password = request.body.password;
-// 	if (username && password) {
-// 		pool.query('SELECT * FROM accounts WHERE username = ? AND password = ?', [username, password], function(error, results, fields) {
-// 			if (results.length > 0) {
-// 				request.session.loggedin = true;
-// 				request.session.username = username;
-// 				response.redirect('/home');
-// 			} else {
-// 				response.send('Incorrect Username and/or Password!');
-// 			}			
-// 			response.end();
-// 		});
-// 	} else {
-// 		response.send('Please enter Username and Password!');
-// 		response.end();
-// 	}
-// });
-
-
 
 
 module.exports = router;
