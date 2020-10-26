@@ -127,8 +127,9 @@ router.get('/projects',async(req,res,next)=>{
  });
 
 
- router.get('/cases',async(req,res,next)=>{
-    pool.query('SELECT * FROM cases',(err,result)=>{
+ router.get('/cases/:id',async(req,res,next)=>{
+    
+    pool.query('SELECT * FROM `cases` WHERE `projectId` =?',[req.params.id],(err,result)=>{
         res.send(result);
     });
  });
