@@ -6,6 +6,9 @@ var path = require('path');
 
 const app =express();
 
+var cors = require('cors');
+app.use(cors())
+
 
 app.use(express.json());
 app.use('/api/test',apiRouter);
@@ -17,7 +20,7 @@ app.use(session({
 	resave: true,
 	saveUninitialized: true
 }));
-app.use(bodyParser.urlencoded({extended : true}));
+app.use(bodyParser());
 app.use(bodyParser.json());
 
 
