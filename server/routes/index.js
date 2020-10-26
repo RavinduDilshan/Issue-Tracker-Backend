@@ -134,6 +134,15 @@ router.get('/projects',async(req,res,next)=>{
     });
  });
 
+ router.get('/issues/:id',async(req,res,next)=>{
+
+    pool.query('SELECT * FROM `issues` WHERE `caseId` =?',[req.params.id],(err,result)=>{
+        res.send(result);
+    });
+
+ });
+
+
 
 
 
