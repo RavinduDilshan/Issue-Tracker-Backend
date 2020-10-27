@@ -210,6 +210,13 @@ router.post('/addissue/:id',async(req,res,next)=>{
 
 });
 
+router.get('/getissue/:id',async(req,res,next)=>{
+    
+    pool.query('SELECT * FROM `issues` WHERE `issueId` =?',[req.params.id],(err,result)=>{
+        res.send(result);
+    });
+ });
+
 
 
 
