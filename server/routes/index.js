@@ -164,6 +164,30 @@ router.get('/projects',async(req,res,next)=>{
 
  });
 
+ router.post('/addcase/:id',async(req,res,next)=>{
+
+    var casename = req.body.casename;
+    var description = req.body.description;
+    var projid=req.params.id;
+
+    if(res){
+
+        pool.query('INSERT INTO `cases` (`projectId`,`description` ,`caseName`)  VALUES (?, ?,?)',
+        [projid,description,casename],(err,result)=>{
+        res.send(result);
+});
+        
+
+    }
+
+// pool.query('INSERT INTO `projects` (`projectId`, `projectName` ,`status`, `caseCount`, `IssueCount`, `description`)  VALUES (?, ?,?,?,?,?)',
+// [null, req.body.projectname,null,null,null,req.body.description],(err,result)=>{
+//     res.send(result);
+// });
+
+});
+
+
 
 
 
