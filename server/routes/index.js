@@ -203,10 +203,6 @@ router.post('/addissue/:id',async(req,res,next)=>{
 
     }
 
-// pool.query('INSERT INTO `projects` (`projectId`, `projectName` ,`status`, `caseCount`, `IssueCount`, `description`)  VALUES (?, ?,?,?,?,?)',
-// [null, req.body.projectname,null,null,null,req.body.description],(err,result)=>{
-//     res.send(result);
-// });
 
 });
 
@@ -218,10 +214,23 @@ router.get('/getissue/:id',async(req,res,next)=>{
  });
 
 
+ router.post('/addprojectcomment/:id',async(req,res,next)=>{
+
+    var commenter = req.body.commenter;
+    var comment = req.body.comment;
+    var proid=req.params.id;
+
+    if(res){
+
+        pool.query('INSERT INTO `projectcomments` (`projectId`,`commenter` ,`comment`)  VALUES (?, ?,?)',
+        [proid,commenter,comment],(err,result)=>{
+        res.send(result);
+});
+        
+
+    }
 
 
-
-
-
+});
 
 module.exports = router;
