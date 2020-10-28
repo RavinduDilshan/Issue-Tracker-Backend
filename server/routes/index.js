@@ -286,6 +286,13 @@ router.get('/getcasecomments/:id',async(req,res,next)=>{
 
 
 });
+
+router.get('/getissuecomments/:id',async(req,res,next)=>{
+    
+    pool.query('SELECT * FROM `issuecomments` WHERE `issueId` =?',[req.params.id],(err,result)=>{
+        res.send(result);
+    });
+ });
  
 
 
