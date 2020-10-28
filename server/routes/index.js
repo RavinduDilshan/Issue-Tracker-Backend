@@ -259,6 +259,14 @@ router.get('/getprojcomments/:id',async(req,res,next)=>{
 
 
 });
+
+
+router.get('/getcasecomments/:id',async(req,res,next)=>{
+    
+    pool.query('SELECT * FROM `casecomments` WHERE `caseId` =?',[req.params.id],(err,result)=>{
+        res.send(result);
+    });
+ });
  
 
 
