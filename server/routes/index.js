@@ -240,6 +240,27 @@ router.get('/getprojcomments/:id',async(req,res,next)=>{
     });
  });
 
+ 
+ router.post('/addcasecomment/:id',async(req,res,next)=>{
+
+    var commenter = req.body.commenter;
+    var comment = req.body.comment;
+    var caseId=req.params.id;
+
+    if(res){
+
+        pool.query('INSERT INTO `casecomments` (`caseId`,`commenter` ,`comment`)  VALUES (?, ?,?)',
+        [caseId,commenter,comment],(err,result)=>{
+        res.send(result);
+});
+        
+
+    }
+
+
+});
+ 
+
 
 
 module.exports = router;
