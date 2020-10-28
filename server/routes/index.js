@@ -4,39 +4,23 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var path = require('path');
 const mysql = require('mysql');
-var fs =require('fs');
+var fs = require('fs');
 const { response } = require('express');
 const { rejects } = require('assert');
 var cors = require('cors');
 const { resolveSoa } = require('dns');
 
 
-const app =express();
+const app = express();
 
 
 
-app.use(session({secret: "secret"}));
+app.use(session({ secret: "secret" }));
 app.use(cors())
 
 
-
-
-
-// app.use((req,res,next)=>{
-//     res.header('Access-Control-Allow-Origin','*');
-//     res.header('Access-Control-Allow-Headers','*');
-
-//     if(req.method === 'OPTIONS'){
-//         res.header('Access-Control-Allow-Methods','PUT,POST,PATCH,DELETE,GET');
-//         return res.status(200).json({});
-
-//     }
-//     next();
-
-// });
-
-app.use(function(req,res,next){
-    res.header("Access-Control-Allow-Origin","*");
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
     res.header(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type,Accept"
@@ -45,215 +29,244 @@ app.use(function(req,res,next){
 });
 
 
-const pool=mysql.createPool({
-    connectionLimit:100,
-    password:'',
-    user:'root',
-    database:'issue_tracker',
-    host:'localhost',
-    port:'3306'
+//mysql connection
+const pool = mysql.createPool({
+    connectionLimit: 100,
+    password: '',
+    user: 'root',
+    database: 'issue_tracker',
+    host: 'localhost',
+    port: '3306'
 });
 
 
-const router=express.Router();
+const router = express.Router();
 
 
-
-
-router.get('/', async (req,res,next)=>{
-    try{
+//root
+router.get('/', async (req, res, next) => {
+    try {
         let results = await db.all();
         res.json(results);
     }
-    catch(e){
+    catch (e) {
         console.log(e);
         res.sendStatus(500);
     }
 });
 
-router.get('/yo',async(req,res,next)=>{
-   pool.query('SELECT * FROM users WHERE userid=1',(err,result)=>{
-       res.send(result);
-   });
-});
+
 
 var sess; //session variable to track username
 
+
 //login function
-router.post('/auth',async(req,res,next)=>{
-  
-    //res.end(JSON.stringify(req.body));
-    	var username = req.body.username;
-        var password = req.body.password;
-        sess=username;
-       
-        pool.query('SELECT * FROM users WHERE username=? AND password=?',[username,password],(err,result)=>{
+router.post('/auth', async (req, res, next) => {
 
-                var resarray=result;
-                let checkuser=resarray[0].username;
-                let checkpass=resarray[0].password;
-                let role=resarray[0].userType;
+    var username = req.body.username;
+    var password = req.body.password;
+    sess = username;
 
-            if(err){
-                return rejects(err);
+    pool.query('SELECT * FROM users WHERE username=? AND password=?', [username, password], (err, result) => {
 
-            }
+        var resarray = result;
+        let checkuser = resarray[0].username;
+        let checkpass = resarray[0].password;
+        let role = resarray[0].userType;
 
-            if(checkuser && checkpass){
-              
-               res.json({
-                   message:'success',
-                   session:sess,
-                   role:role
-               });
-                
-            }
-        });
-
-	
-
-});
-
-router.get('/homee', function(req, res) {
-
-    res.send('working...');
-   
-});
-
-router.get('/projects',async(req,res,next)=>{
-    pool.query('SELECT * FROM projects',(err,result)=>{
-        res.send(result);
-    });
- });
-
-
- router.get('/cases/:id',async(req,res,next)=>{
-    
-    pool.query('SELECT * FROM `cases` WHERE `projectId` =?',[req.params.id],(err,result)=>{
-        res.send(result);
-    });
- });
-
- router.get('/issues/:id',async(req,res,next)=>{
-
-    pool.query('SELECT * FROM `issues` WHERE `caseId` =?',[req.params.id],(err,result)=>{
-        res.send(result);
-    });
-
- });
-
- router.post('/addpro',async(req,res,next)=>{
-
-        var projectname = req.body.projectname;
-        var description = req.body.description;
-
-        if(res){
-
-            pool.query('INSERT INTO `projects` (`projectName` ,`description`)  VALUES (?, ?)',
-            [projectname,description],(err,result)=>{
-            res.send(result);
-    });
-            
+        if (err) {
+            return rejects(err);
 
         }
 
-    // pool.query('INSERT INTO `projects` (`projectId`, `projectName` ,`status`, `caseCount`, `IssueCount`, `description`)  VALUES (?, ?,?,?,?,?)',
-    // [null, req.body.projectname,null,null,null,req.body.description],(err,result)=>{
-    //     res.send(result);
-    // });
+        if (checkuser && checkpass) {
 
- });
+            res.json({
+                message: 'success',
+                session: sess,
+                role: role
+            });
 
- router.post('/addcase/:id',async(req,res,next)=>{
+        }
+    });
+
+
+
+});
+
+// GET Requests
+
+
+//get project list
+router.get('/projects', async (req, res, next) => {
+    pool.query('SELECT * FROM projects', (err, result) => {
+        res.send(result);
+    });
+});
+
+
+//get cases from project id
+router.get('/cases/:id', async (req, res, next) => {
+    pool.query('SELECT * FROM `cases` WHERE `projectId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
+
+//get issues from case id
+router.get('/issues/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `issues` WHERE `caseId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+
+});
+
+
+//get single issue
+router.get('/getissue/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `issues` WHERE `issueId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
+
+//get all comments in projects
+router.get('/getprojcomments/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `projectcomments` WHERE `projectId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
+
+//get all comments in case
+router.get('/getcasecomments/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `casecomments` WHERE `caseId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
+
+//get all comments in case
+router.get('/getcasecomments/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `casecomments` WHERE `caseId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
+//get all comments in issues
+router.get('/getissuecomments/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `issuecomments` WHERE `issueId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
+
+
+
+//POST Requests
+
+//add new project
+router.post('/addpro', async (req, res, next) => {
+
+    var projectname = req.body.projectname;
+    var description = req.body.description;
+
+    if (res) {
+
+        pool.query('INSERT INTO `projects` (`projectName` ,`description`)  VALUES (?, ?)',
+            [projectname, description], (err, result) => {
+                res.send(result);
+            });
+
+
+    }
+
+});
+
+
+//add case to project
+router.post('/addcase/:id', async (req, res, next) => {
 
     var casename = req.body.casename;
     var description = req.body.description;
-    var projid=req.params.id;
+    var projid = req.params.id;
 
-    if(res){
+    if (res) {
 
         pool.query('INSERT INTO `cases` (`projectId`,`description` ,`caseName`)  VALUES (?, ?,?)',
-        [projid,description,casename],(err,result)=>{
-        res.send(result);
-});
-        
+            [projid, description, casename], (err, result) => {
+                res.send(result);
+            });
+
 
     }
 
-// pool.query('INSERT INTO `projects` (`projectId`, `projectName` ,`status`, `caseCount`, `IssueCount`, `description`)  VALUES (?, ?,?,?,?,?)',
-// [null, req.body.projectname,null,null,null,req.body.description],(err,result)=>{
-//     res.send(result);
-// });
-
 });
 
-router.post('/addissue/:id',async(req,res,next)=>{
+
+//add issue to case
+router.post('/addissue/:id', async (req, res, next) => {
 
     var issuename = req.body.issuename;
     var description = req.body.description;
-    var caseid=req.params.id;
+    var caseid = req.params.id;
 
-    if(res){
+    if (res) {
 
         pool.query('INSERT INTO `issues` (`caseId`,`description` ,`issueName`)  VALUES (?, ?,?)',
-        [caseid,description,issuename],(err,result)=>{
-        res.send(result);
-});
-        
+            [caseid, description, issuename], (err, result) => {
+                res.send(result);
+            });
+
 
     }
 
 
 });
 
-router.get('/getissue/:id',async(req,res,next)=>{
-    
-    pool.query('SELECT * FROM `issues` WHERE `issueId` =?',[req.params.id],(err,result)=>{
-        res.send(result);
-    });
- });
 
-
- router.post('/addprojectcomment/:id',async(req,res,next)=>{
+//add comment to project
+router.post('/addprojectcomment/:id', async (req, res, next) => {
 
     var commenter = req.body.commenter;
     var comment = req.body.comment;
-    var proid=req.params.id;
+    var proid = req.params.id;
 
-    if(res){
+    if (res) {
 
         pool.query('INSERT INTO `projectcomments` (`projectId`,`commenter` ,`comment`)  VALUES (?, ?,?)',
-        [proid,commenter,comment],(err,result)=>{
-        res.send(result);
-});
-        
+            [proid, commenter, comment], (err, result) => {
+                res.send(result);
+            });
+
 
     }
 
 
 });
 
-router.get('/getprojcomments/:id',async(req,res,next)=>{
-    
-    pool.query('SELECT * FROM `projectcomments` WHERE `projectId` =?',[req.params.id],(err,result)=>{
-        res.send(result);
-    });
- });
 
- 
- router.post('/addcasecomment/:id',async(req,res,next)=>{
+
+//add comment to case
+router.post('/addcasecomment/:id', async (req, res, next) => {
 
     var commenter = req.body.commenter;
     var comment = req.body.comment;
-    var caseId=req.params.id;
+    var caseId = req.params.id;
 
-    if(res){
+    if (res) {
 
         pool.query('INSERT INTO `casecomments` (`caseId`,`commenter` ,`comment`)  VALUES (?, ?,?)',
-        [caseId,commenter,comment],(err,result)=>{
-        res.send(result);
-});
-        
+            [caseId, commenter, comment], (err, result) => {
+                res.send(result);
+            });
+
 
     }
 
@@ -261,40 +274,26 @@ router.get('/getprojcomments/:id',async(req,res,next)=>{
 });
 
 
-router.get('/getcasecomments/:id',async(req,res,next)=>{
-    
-    pool.query('SELECT * FROM `casecomments` WHERE `caseId` =?',[req.params.id],(err,result)=>{
-        res.send(result);
-    });
- });
 
- router.post('/addissuecomment/:id',async(req,res,next)=>{
+
+//add comment to issue
+router.post('/addissuecomment/:id', async (req, res, next) => {
 
     var commenter = req.body.commenter;
     var comment = req.body.comment;
-    var issueId=req.params.id;
+    var issueId = req.params.id;
 
-    if(res){
+    if (res) {
 
         pool.query('INSERT INTO `issuecomments` (`issueId`,`commenter` ,`comment`)  VALUES (?, ?,?)',
-        [issueId,commenter,comment],(err,result)=>{
-        res.send(result);
-});
-        
+            [issueId, commenter, comment], (err, result) => {
+                res.send(result);
+            });
+
 
     }
 
 
 });
-
-router.get('/getissuecomments/:id',async(req,res,next)=>{
-    
-    pool.query('SELECT * FROM `issuecomments` WHERE `issueId` =?',[req.params.id],(err,result)=>{
-        res.send(result);
-    });
- });
- 
-
-
 
 module.exports = router;
