@@ -267,6 +267,25 @@ router.get('/getcasecomments/:id',async(req,res,next)=>{
         res.send(result);
     });
  });
+
+ router.post('/addissuecomment/:id',async(req,res,next)=>{
+
+    var commenter = req.body.commenter;
+    var comment = req.body.comment;
+    var issueId=req.params.id;
+
+    if(res){
+
+        pool.query('INSERT INTO `issuecomments` (`issueId`,`commenter` ,`comment`)  VALUES (?, ?,?)',
+        [issueId,commenter,comment],(err,result)=>{
+        res.send(result);
+});
+        
+
+    }
+
+
+});
  
 
 
