@@ -233,4 +233,13 @@ router.get('/getissue/:id',async(req,res,next)=>{
 
 });
 
+router.get('/getprojcomments/:id',async(req,res,next)=>{
+    
+    pool.query('SELECT * FROM `projectcomments` WHERE `projectId` =?',[req.params.id],(err,result)=>{
+        res.send(result);
+    });
+ });
+
+
+
 module.exports = router;
