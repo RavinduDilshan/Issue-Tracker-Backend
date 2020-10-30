@@ -166,6 +166,8 @@ router.get('/getissuecomments/:id', async (req, res, next) => {
     });
 });
 
+
+
 router.get('/getprojectcomment/:id', async (req, res, next) => {
 
     pool.query('SELECT * FROM `projectcomments` WHERE `projectcmtId` =?', [req.params.id], (err, result) => {
@@ -257,6 +259,35 @@ router.post('/addprojectcomment/:id', async (req, res, next) => {
 
 
 });
+
+//add reply to project comment
+router.post('/addprojectcommentreply/:id', async (req, res, next) => {
+
+    var reply=req.body.reply;
+    var commentId=req.params.id;
+
+
+
+      
+
+    if (res) {
+
+        pool.query('INSERT INTO `projectcommentsreply` (`commentId`,`relply`)  VALUES (?, ?)',
+            [commentId, reply], (err, result) => {
+                res.send(result);
+            });
+
+
+    }
+
+
+
+   
+
+    
+
+});
+
 
 
 
