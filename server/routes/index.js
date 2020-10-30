@@ -166,6 +166,13 @@ router.get('/getissuecomments/:id', async (req, res, next) => {
     });
 });
 
+router.get('/getprojectcomment/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `projectcomments` WHERE `projectcmtId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
 
 
 
