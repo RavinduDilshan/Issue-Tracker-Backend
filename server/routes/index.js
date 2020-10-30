@@ -167,13 +167,25 @@ router.get('/getissuecomments/:id', async (req, res, next) => {
 });
 
 
-
+//get single project comment
 router.get('/getprojectcomment/:id', async (req, res, next) => {
 
     pool.query('SELECT * FROM `projectcomments` WHERE `projectcmtId` =?', [req.params.id], (err, result) => {
         res.send(result);
     });
 });
+
+//get all project comments reply from commentid
+router.get('/getallprojectcommentsreplies/:id', async (req, res, next) => {
+
+    pool.query('SELECT * FROM `projectcommentsreply` WHERE `commentId` =?', [req.params.id], (err, result) => {
+        res.send(result);
+    });
+});
+
+
+
+
 
 
 
