@@ -6,12 +6,21 @@ const router = require('../routes');
 const express = require('express');
 const app = express.Router();
 
+// const pool = mysql.createPool({
+//     connectionLimit: 10,
+//     password: '',
+//     user: 'root',
+//     database: 'issue_tracker',
+//     host: 'localhost',
+//     port: '3306'
+// });
+
 const pool = mysql.createPool({
     connectionLimit: 10,
-    password: '',
-    user: 'root',
+    password: 'Ravindu_int_db',
+    user: 'ravindu_int',
     database: 'issue_tracker',
-    host: 'localhost',
+    host: '13.93.162.190',
     port: '3306'
 });
 
